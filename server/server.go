@@ -16,9 +16,15 @@ import (
 
 // Serve starts a server
 func Serve(port, maxConcurrency int) {
+	// Serve static files
+	http.Handle("/", http.FileServer(http.Dir("./static/")))
+	
+	// API endpoints
 	http.HandleFunc("/api/ping", pingHandler)
 	http.HandleFunc("/api/lichess/", lichessGifHandler(maxConcurrency))
+	
 	log.Printf("starting %s server on port %v with concurrency=%v\n", env(), port, maxConcurrency)
+	log.Printf("Web UI available at: http://localhost:%v\n", port)
 	http.ListenAndServe(":"+strconv.Itoa(port), nil)
 }
 

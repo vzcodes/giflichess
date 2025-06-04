@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GifLichess - Convert Lichess Games to GIFs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .checkbox-group {
+            margin: 20px 0;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .loading {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .example {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .gif-preview {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .gif-preview img {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏁 GifLichess</h1>
+        <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
+            Convert any Lichess game into an animated GIF
+        </p>
+        
+        <div class="example">
+            <strong>Examples:</strong><br>
+            • Full URL: <code>https://lichess.org/BI5pQatH</code><br>
+            • Game ID only: <code>BI5pQatH</code><br>
+            • Another game: <code>OBd2j1eu</code>
+        </div>
+        
+        <form id="gifForm">
+            <div class="form-group">
+                <label for="gameInput">Lichess Game URL or ID:</label>
+                <input type="text" id="gameInput" placeholder="e.g., https://lichess.org/BI5pQatH or just BI5pQatH" required>
+            </div>
+            
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="reversedInput">
+                    Flip board (play from Black's perspective)
+                </label>
+            </div>
+            
+            <button type="submit" id="generateBtn">Generate GIF</button>
+        </form>
+        
+        <div id="result"></div>
+        <div id="gifPreview" class="gif-preview"></div>
+    </div>
+
+    <script>
+        document.getElementById('gifForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const gameInput = document.getElementById('gameInput').value.trim();
+            const reversed = document.getElementById('reversedInput').checked;
+            const resultDiv = document.getElementById('result');
+            const gifPreview = document.getElementById('gifPreview');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            // Extract game ID from URL if needed
+            let gameId = gameInput;
+            if (gameInput.includes('lichess.org/')) {
+                const match = gameInput.match(/lichess\.org\/([a-zA-Z0-9]+)/);
+                if (match) {
+                    gameId = match[1];
+                } else {
+                    resultDiv.innerHTML = '<div class="error">Invalid Lichess URL format</div>';
+                    return;
+                }
+            }
+            
+            if (!gameId || gameId.length < 8) {
+                resultDiv.innerHTML = '<div class="error">Please enter a valid Lichess game ID (at least 8 characters)</div>';
+                return;
+            }
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating GIF...';
+            resultDiv.innerHTML = '<div class="loading">⏳ Generating your GIF... This may take 5-15 seconds.</div>';
+            gifPreview.innerHTML = '';
+            
+            try {
+                // Build API URL
+                const apiUrl = `/api/lichess/${gameId}${reversed ? '?reversed=true' : ''}`;
+                
+                // Make request
+                const response = await fetch(apiUrl);
+                
+                if (response.ok) {
+                    // Create blob URL for the GIF
+                    const blob = await response.blob();
+                    const gifUrl = URL.createObjectURL(blob);
+                    
+                    // Show success message and download link
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ GIF generated successfully!<br>
+                            <a href="${gifUrl}" download="${gameId}.gif" style="color: #155724; text-decoration: underline;">
+                                📥 Download ${gameId}.gif
+                            </a>
+                        </div>
+                    `;
+                    
+                    // Show preview
+                    gifPreview.innerHTML = `
+                        <h3>Preview:</h3>
+                        <img src="${gifUrl}" alt="Chess game GIF" />
+                    `;
+                    
+                    // Auto-download
+                    const link = document.createElement('a');
+                    link.href = gifUrl;
+                    link.download = `${gameId}.gif`;
+                    link.click();
+                    
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `<div class="error">❌ Error: ${errorText}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            } finally {
+                // Reset button
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate GIF';
+            }
+        });
+    </script>
+</body>
+</html>
