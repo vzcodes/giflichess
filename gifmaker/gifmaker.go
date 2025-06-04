@@ -188,8 +188,9 @@ func drawPNG(pos *chess.Position, whiteName string, blackName string, reversed b
 	f.Close()
 
 	// Use inkscape to convert svg -> png
-	cmd := exec.Command("dbus-run-session", "inkscape", "-z", "-e", filebase+".png", filebase+".svg")
-	cmd.Stderr = os.Stderr
+	cmd := exec.Command("dbus-run-session", "inkscape", "--export-filename="+filebase+".png", filebase+".svg")
+	// Suppress GTK warnings in headless environment
+	cmd.Env = append(os.Environ(), "GTK_BACKEND=cairo")
 	if r := cmd.Run(); r != nil {
 		return err
 	}
