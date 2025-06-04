@@ -1,7 +1,9 @@
 GifLichess
 ==========
 
-Golang application that converts any Lichess game to an animated GIF with a modern web interface.
+Golang application that converts any Lichess game to an animated GIF with a modern web interface. 
+
+Try it out at https://gif.chesstools.org/. 
 
 ![example gif](assets/example.gif)
 
