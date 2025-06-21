@@ -24,7 +24,27 @@ type imgOutput struct {
 	err   error
 }
 
-// Declare colors for style
+// Declare colors for different themes
+var themes = map[string][]color.RGBA{
+	"brown": {
+		{181, 136, 99, 255},  // dark
+		{240, 217, 181, 255}, // light
+	},
+	"blue": {
+		{70, 130, 180, 255},  // dark
+		{173, 216, 230, 255}, // light
+	},
+	"green": {
+		{119, 149, 86, 255},  // dark
+		{235, 236, 208, 255}, // light
+	},
+	"purple": {
+		{128, 70, 153, 255},  // dark
+		{218, 185, 234, 255}, // light
+	},
+}
+
+// Default theme colors (brown)
 var darkColor = color.RGBA{181, 136, 99, 255}
 var lightColor = color.RGBA{240, 217, 181, 255}
 
@@ -72,7 +92,17 @@ func blackName(game *chess.Game) string {
 
 // GenerateGIF will use *chess.Game to write a gif into an io.Writer
 // This uses inkscape & imagemagick as a dependency
-func GenerateGIF(game *chess.Game, gameID string, reversed bool, out io.Writer, maxConcurrency int) error {
+func GenerateGIF(game *chess.Game, gameID string, reversed bool, speed float64, theme string, out io.Writer, maxConcurrency int) error {
+
+	// Set theme colors
+	if themeColors, exists := themes[theme]; exists {
+		darkColor = themeColors[0]
+		lightColor = themeColors[1]
+	} else {
+		// Default to brown theme
+		darkColor = themes["brown"][0]
+		lightColor = themes["brown"][1]
+	}
 
 	// Generate PNGs
 	pool := gopool.NewPool(maxConcurrency)
@@ -130,13 +160,23 @@ loop:
 
 		// Add new frame to animated GIF
 		outGIF.Image = append(outGIF.Image, img)
+
+		// Calculate delays based on speed (delays are in hundredths of a second)
+		baseDelay := 0
 		if i == len(game.Positions())-1 {
-			outGIF.Delay = append(outGIF.Delay, 450)
+			baseDelay = 450 // final position stays longer
 		} else if i < 10 {
-			outGIF.Delay = append(outGIF.Delay, 50)
+			baseDelay = 50 // opening moves are faster
 		} else {
-			outGIF.Delay = append(outGIF.Delay, 120)
+			baseDelay = 120 // normal moves
 		}
+
+		// Adjust delay based on speed parameter
+		adjustedDelay := int(float64(baseDelay) / speed)
+		if adjustedDelay < 5 { // minimum delay to prevent too fast animation
+			adjustedDelay = 5
+		}
+		outGIF.Delay = append(outGIF.Delay, adjustedDelay)
 	}
 
 	gif.EncodeAll(out, outGIF)

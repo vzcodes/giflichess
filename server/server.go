@@ -18,11 +18,11 @@ import (
 func Serve(port, maxConcurrency int) {
 	// Serve static files
 	http.Handle("/", http.FileServer(http.Dir("./static/")))
-	
+
 	// API endpoints
 	http.HandleFunc("/api/ping", pingHandler)
 	http.HandleFunc("/api/lichess/", lichessGifHandler(maxConcurrency))
-	
+
 	log.Printf("starting %s server on port %v with concurrency=%v\n", env(), port, maxConcurrency)
 	log.Printf("Web UI available at: http://localhost:%v\n", port)
 	http.ListenAndServe(":"+strconv.Itoa(port), nil)
@@ -76,7 +76,7 @@ func lichessGifHandler(maxConcurrency int) func(http.ResponseWriter, *http.Reque
 			w.Header().Set("Cache-Control", "no-cache")
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 		}
-		err = gifmaker.GenerateGIF(game, gameID, getReversed(r), w, maxConcurrency)
+		err = gifmaker.GenerateGIF(game, gameID, getReversed(r), getSpeed(r), getTheme(r), w, maxConcurrency)
 		if err != nil {
 			status = 500
 			w.Header().Set("Cache-Control", "no-cache")
@@ -92,6 +92,27 @@ func getReversed(r *http.Request) bool {
 		return s[0] == "true"
 	}
 	return false
+}
+
+func getSpeed(r *http.Request) float64 {
+	if s, ok := r.URL.Query()["speed"]; ok && len(s) == 1 {
+		if speed, err := strconv.ParseFloat(s[0], 64); err == nil && speed > 0 && speed <= 10 {
+			return speed
+		}
+	}
+	return 1.0 // default speed
+}
+
+func getTheme(r *http.Request) string {
+	if s, ok := r.URL.Query()["theme"]; ok && len(s) == 1 {
+		validThemes := map[string]bool{
+			"brown": true, "blue": true, "green": true, "purple": true,
+		}
+		if validThemes[s[0]] {
+			return s[0]
+		}
+	}
+	return "brown" // default theme
 }
 
 func getIDFromQuery(r *http.Request) (string, error) {

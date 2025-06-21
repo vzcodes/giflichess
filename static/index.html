@@ -308,8 +308,23 @@
             document.getElementById('result').classList.add('hidden');
             
             try {
+                // Build URL with query parameters
+                const gameId = gameUrl.split('/').pop();
+                let apiUrl = `/api/lichess/${gameId}`;
+                const params = new URLSearchParams();
+                
+                if (speed !== '1') {
+                    params.append('speed', speed);
+                }
+                if (theme !== 'brown') {
+                    params.append('theme', theme);
+                }
+                
+                if (params.toString()) {
+                    apiUrl += '?' + params.toString();
+                }
 
-                const response = await fetch('/api/lichess/' + gameUrl.split('/').pop() + (speed !== '1' ? `?speed=${speed}` : '') + (theme !== 'brown' ? `${speed !== '1' ? '&' : '?'}theme=${theme}` : ''), {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
