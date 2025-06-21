@@ -3,236 +3,347 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GifLichess - Convert Lichess Games to GIFs</title>
+    <title>Chess GIF Generator - ChessTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(220 13% 91%)",
+                        input: "hsl(220 13% 91%)",
+                        ring: "hsl(224 71.4% 4.1%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(224 71.4% 4.1%)",
+                        primary: {
+                            DEFAULT: "hsl(220.9 39.3% 11%)",
+                            foreground: "hsl(210 20% 98%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(220 14.3% 90%)",
+                            foreground: "hsl(220.9 39.3% 8%)",
+                        },
+                        destructive: {
+                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            foreground: "hsl(210 20% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(220 14.3% 95.9%)",
+                            foreground: "hsl(220 8.9% 46.1%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(220 14.3% 95.9%)",
+                            foreground: "hsl(220.9 39.3% 11%)",
+                        },
+                        popover: {
+                            DEFAULT: "hsl(0 0% 100%)",
+                            foreground: "hsl(224 71.4% 4.1%)",
+                        },
+                        card: {
+                            DEFAULT: "hsl(0 0% 100%)",
+                            foreground: "hsl(224 71.4% 4.1%)",
+                        },
+                    },
+                    borderRadius: {
+                        lg: "0.5rem",
+                        md: "calc(0.5rem - 2px)",
+                        sm: "calc(0.5rem - 4px)",
+                    },
+                }
+            }
+        }
+    </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #34495e;
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        
-        input[type="text"]:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        
-        .checkbox-group {
-            margin: 20px 0;
-        }
-        
-        input[type="checkbox"] {
-            margin-right: 8px;
-        }
-        
-        button {
-            background-color: #3498db;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-        }
-        
-        button:hover {
-            background-color: #2980b9;
-        }
-        
-        button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-        
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        
-        .success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-        
-        .error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-        
-        .loading {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-        }
-        
-        .example {
-            background-color: #e7f3ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        
-        .gif-preview {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .gif-preview img {
-            max-width: 100%;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🏁 GifLichess</h1>
-        <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
-            Convert any Lichess game into an animated GIF
-        </p>
-        
-        <div class="example">
-            <strong>Examples:</strong><br>
-            • Full URL: <code>https://lichess.org/BI5pQatH</code><br>
-            • Game ID only: <code>BI5pQatH</code><br>
-            • Another game: <code>OBd2j1eu</code>
+<body class="bg-background text-foreground">
+    <!-- Navigation -->
+    <nav class="bg-primary p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="flex items-center gap-2">
+                <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 375 374.999991" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="2e198c8fd0">
+                            <path d="M 104 250.613281 L 271 250.613281 L 271 356 L 104 356 Z M 104 250.613281 " clip-rule="nonzero"/>
+                        </clipPath>
+                        <clipPath id="352a3390ed">
+                            <path d="M 104 19 L 267.605469 19 L 267.605469 188.285156 L 104 188.285156 Z M 104 19 " clip-rule="nonzero"/>
+                        </clipPath>
+                    </defs>
+                    <g clip-path="url(#2e198c8fd0)">
+                        <path fill="#ffbe2d" d="M 151.894531 272.488281 L 158.953125 186.238281 L 216.015625 186.238281 L 223.074219 272.488281 Z M 230.359375 272.488281 L 143.855469 272.488281 C 143.855469 286.394531 136.605469 299.636719 126.878906 308.867188 L 115.957031 319.226562 C 112.636719 321.332031 110.597656 325.152344 110.597656 329.289062 C 110.597656 335.75 115.496094 340.988281 121.539062 340.980469 L 253.4375 340.921875 C 259.480469 340.921875 264.371094 335.683594 264.371094 329.230469 L 264.371094 329.222656 C 264.371094 325.089844 262.332031 321.265625 259.007812 319.160156 L 245.949219 307.015625 C 236.644531 298.363281 231.867188 286.042969 231.214844 272.875 Z M 270.265625 348.164062 C 270.265625 344.191406 267.050781 340.980469 263.082031 340.980469 L 111.886719 340.980469 C 107.917969 340.980469 104.703125 344.191406 104.703125 348.164062 C 104.703125 352.132812 107.917969 355.347656 111.886719 355.347656 L 263.082031 355.347656 C 267.050781 355.347656 270.265625 352.132812 270.265625 348.164062 Z M 239.277344 177.484375 C 239.277344 172.625 235.34375 168.6875 230.484375 168.6875 L 144.484375 168.6875 C 139.625 168.6875 135.691406 172.625 135.691406 177.484375 C 135.691406 182.34375 139.625 186.277344 144.484375 186.277344 L 230.484375 186.277344 C 235.34375 186.277344 239.277344 182.34375 239.277344 177.484375 Z M 233.511719 159.894531 C 233.511719 155.035156 229.578125 151.097656 224.71875 151.097656 L 150.25 151.097656 C 145.390625 151.097656 141.457031 155.035156 141.457031 159.894531 C 141.457031 164.753906 145.390625 168.6875 150.25 168.6875 L 224.710938 168.6875 C 229.578125 168.6875 233.511719 164.753906 233.511719 159.894531 Z M 211.625 64.058594 C 211.625 59.199219 207.6875 55.261719 202.828125 55.261719 L 172.136719 55.261719 C 167.277344 55.261719 163.34375 59.199219 163.34375 64.058594 C 163.34375 68.917969 167.277344 72.855469 172.136719 72.855469 L 202.820312 72.855469 C 207.6875 72.855469 211.625 68.917969 211.625 64.058594 Z M 229.570312 72.855469 L 145.398438 72.855469 C 138.921875 72.855469 134.195312 79.003906 135.882812 85.265625 L 153.558594 151.097656 L 221.417969 151.097656 L 239.09375 85.265625 C 240.773438 79.003906 236.054688 72.855469 229.570312 72.855469 Z M 206.539062 31 L 195.183594 31 L 195.183594 19.644531 L 182.277344 19.644531 L 182.277344 31 L 170.921875 31 L 170.921875 43.917969 L 182.277344 43.917969 L 182.277344 55.269531 L 195.191406 55.269531 L 195.191406 43.90625 L 206.546875 43.90625 L 206.546875 31 Z M 206.539062 31 " fill-opacity="1" fill-rule="nonzero"/>
+                    </g>
+                    <g clip-path="url(#352a3390ed)">
+                        <path fill="#ffbe2d" d="M 151.894531 272.488281 L 158.953125 186.238281 L 216.015625 186.238281 L 223.074219 272.488281 Z M 230.359375 272.488281 L 143.855469 272.488281 C 143.855469 286.394531 136.605469 299.636719 126.878906 308.867188 L 115.957031 319.226562 C 112.636719 321.332031 110.597656 325.152344 110.597656 329.289062 C 110.597656 335.75 115.496094 340.988281 121.539062 340.980469 L 253.4375 340.921875 C 259.480469 340.921875 264.371094 335.683594 264.371094 329.230469 L 264.371094 329.222656 C 264.371094 325.089844 262.332031 321.265625 259.007812 319.160156 L 245.949219 307.015625 C 236.644531 298.363281 231.867188 286.042969 231.214844 272.875 Z M 270.265625 348.164062 C 270.265625 344.191406 267.050781 340.980469 263.082031 340.980469 L 111.886719 340.980469 C 107.917969 340.980469 104.703125 344.191406 104.703125 348.164062 C 104.703125 352.132812 107.917969 355.347656 111.886719 355.347656 L 263.082031 355.347656 C 267.050781 355.347656 270.265625 352.132812 270.265625 348.164062 Z M 239.277344 177.484375 C 239.277344 172.625 235.34375 168.6875 230.484375 168.6875 L 144.484375 168.6875 C 139.625 168.6875 135.691406 172.625 135.691406 177.484375 C 135.691406 182.34375 139.625 186.277344 144.484375 186.277344 L 230.484375 186.277344 C 235.34375 186.277344 239.277344 182.34375 239.277344 177.484375 Z M 233.511719 159.894531 C 233.511719 155.035156 229.578125 151.097656 224.71875 151.097656 L 150.25 151.097656 C 145.390625 151.097656 141.457031 155.035156 141.457031 159.894531 C 141.457031 164.753906 145.390625 168.6875 150.25 168.6875 L 224.710938 168.6875 C 229.578125 168.6875 233.511719 164.753906 233.511719 159.894531 Z M 211.625 64.058594 C 211.625 59.199219 207.6875 55.261719 202.828125 55.261719 L 172.136719 55.261719 C 167.277344 55.261719 163.34375 59.199219 163.34375 64.058594 C 163.34375 68.917969 167.277344 72.855469 172.136719 72.855469 L 202.820312 72.855469 C 207.6875 72.855469 211.625 68.917969 211.625 64.058594 Z M 229.570312 72.855469 L 145.398438 72.855469 C 138.921875 72.855469 134.195312 79.003906 135.882812 85.265625 L 153.558594 151.097656 L 221.417969 151.097656 L 239.09375 85.265625 C 240.773438 79.003906 236.054688 72.855469 229.570312 72.855469 Z M 206.539062 31 L 195.183594 31 L 195.183594 19.644531 L 182.277344 19.644531 L 182.277344 31 L 170.921875 31 L 170.921875 43.917969 L 182.277344 43.917969 L 182.277344 55.269531 L 195.191406 55.269531 L 195.191406 43.90625 L 206.546875 43.90625 L 206.546875 31 Z M 206.539062 31 " fill-opacity="1" fill-rule="nonzero"/>
+                    </g>
+                </svg>
+                <!-- <svg  src="/chesstools.svg" alt="Chess Tools" width="32" height="32" class="h-8 w-8">
+                    <use href="/chesstools.svg#logo"></use>
+                </svg> -->
+                <span class="text-xl font-bold text-primary-foreground">ChessTools</span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center gap-6">
+                <div class="relative group">
+                    <button class="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground px-4 py-2 rounded-md transition-colors">
+                        Tools
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-popover border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                        <div class="py-1">
+                            <a href="https://chesstools.org/generator" class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground">FEN to PNG</a>
+                            <a href="https://chesstools.org/board" class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground">Board</a>
+                            <a href="https://chesstools.org/analysis" class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground">Analysis</a>
+                            <a href="/" class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground font-medium">GIF Generator</a>
+                            <a href="https://api.chesstools.org/docs" class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground">Ratings API</a>
+                            <a href="https://chesstools.org/estimator" class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground">Ratings Estimator</a>
+                            <a href="https://cfc.chesstools.org/" class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground">CFC Ratings Processor</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="https://chesstools.org/play" class="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground px-4 py-2 rounded-md transition-colors">Play</a>
+                <a href="https://chesstools.org/about" class="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground px-4 py-2 rounded-md transition-colors">About</a>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div class="md:hidden">
+                <button id="mobile-menu-btn" class="bg-primary-foreground text-primary p-2 rounded-md">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
-        
-        <form id="gifForm">
-            <div class="form-group">
-                <label for="gameInput">Lichess Game URL or ID:</label>
-                <input type="text" id="gameInput" placeholder="e.g., https://lichess.org/BI5pQatH or just BI5pQatH" required>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 bg-primary border-t border-primary-foreground/20">
+            <div class="flex flex-col gap-2 py-4">
+                <a href="https://chesstools.org/board" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">Board</a>
+                <a href="https://chesstools.org/play" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">Play</a>
+                <a href="https://chesstools.org/analysis" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">Analysis</a>
+                <a href="https://chesstools.org/estimator" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">Ratings Estimator</a>
+                <a href="https://chesstools.org/generator" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">Board Generator</a>
+                <a href="/" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors font-medium">Chess GIF Generator</a>
+                <a href="https://api.chesstools.org/docs" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">Ratings API</a>
+                <a href="https://chesstools.org/about" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">About</a>
+                <a href="https://cfc.chesstools.org/" class="text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors">CFC Ratings Processor</a>
             </div>
-            
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" id="reversedInput">
-                    Flip board (play from Black's perspective)
-                </label>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background py-20">
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
+                    Chess <span class="text-primary">GIF Generator</span>
+                </h1>
+                <p class="text-xl mb-8 text-muted-foreground max-w-3xl mx-auto">
+                    Convert Lichess games into animated GIFs. Perfect for sharing your best games, 
+                    tactical puzzles, or educational content on social media.
+                </p>
             </div>
-            
-            <button type="submit" id="generateBtn">Generate GIF</button>
-        </form>
-        
-        <div id="result"></div>
-        <div id="gifPreview" class="gif-preview"></div>
-    </div>
+        </div>
+    </section>
+
+    <!-- Generator Section -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <!-- Generator Form -->
+                <div class="bg-card border border-border rounded-lg p-8 mb-8">
+                    <h3 class="text-2xl font-bold mb-6">Generate Chess GIF</h3>
+                    <form id="gifForm" class="space-y-6">
+                        <div>
+                            <label for="gameUrl" class="block text-sm font-medium mb-2">Lichess Game URL</label>
+                            <input type="url" 
+                                   id="gameUrl" 
+                                   name="gameUrl"
+                                   placeholder="https://lichess.org/xxxxxxxx"
+                                   required
+                                   class="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring">
+                            <p class="text-sm text-muted-foreground mt-1">Enter the full URL of a Lichess game, for example https://lichess.org/LebWVal9</p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="speed" class="block text-sm font-medium mb-2">Animation Speed</label>
+                                <select id="speed" 
+                                        name="speed"
+                                        class="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring">
+                                    <option value="0.5">Slow (0.5x)</option>
+                                    <option value="1" selected>Normal (1x)</option>
+                                    <option value="1.5">Fast (1.5x)</option>
+                                    <option value="2">Very Fast (2x)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="theme" class="block text-sm font-medium mb-2">Board Theme</label>
+                                <select id="theme" 
+                                        name="theme"
+                                        class="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring">
+                                    <option value="brown" selected>Brown</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="purple">Purple</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="submit" 
+                                    class="w-full bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2M7 4h6M7 4l-2 14h8l-2-14m-3 4v6m2-6v6"></path>
+                                </svg>
+                                Generate GIF
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Result Section -->
+                <div id="result" class="bg-card border border-border rounded-lg p-8 hidden">
+                    <h3 class="text-xl font-bold mb-4">Your GIF is Ready!</h3>
+                    <div id="gif-container" class="text-center">
+                        <!-- GIF will be displayed here -->
+                    </div>
+                    <div class="mt-4 flex justify-center">
+                        <a id="download-link" 
+                           href="#" 
+                           download
+                           class="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Download GIF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading" class="bg-card border border-border rounded-lg p-8 text-center hidden">
+                    <div class="flex flex-col items-center gap-4">
+                        <svg class="w-12 h-12 animate-spin text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        </svg>
+                        <p class="text-lg font-medium">Generating your GIF...</p>
+                        <p class="text-sm text-muted-foreground">This may take a few moments</p>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="grid md:grid-cols-3 gap-6 mt-12">
+                    <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Fast Generation</h3>
+                        <p class="text-muted-foreground">Quick processing of Lichess games into high-quality animated GIFs</p>
+                    </div>
+                    
+                    <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Customizable</h3>
+                        <p class="text-muted-foreground">Choose from different board themes and animation speeds</p>
+                    </div>
+                    
+                    <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Easy Sharing</h3>
+                        <p class="text-muted-foreground">Perfect for social media, blogs, and educational content</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-muted mt-16 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-muted-foreground">
+                © 2025 ChessTools. Part of the ChessTools suite of applications.
+            </p>
+            <div class="flex justify-center gap-4 mt-4">
+                <a href="https://chesstools.org/" class="text-muted-foreground hover:text-foreground transition-colors">Main Site</a>
+                <a href="https://api.chesstools.org/docs" class="text-muted-foreground hover:text-foreground transition-colors">API</a>
+                <a href="https://cfc.chesstools.org/" class="text-muted-foreground hover:text-foreground transition-colors">CFC Processor</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Form submission
         document.getElementById('gifForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const gameInput = document.getElementById('gameInput').value.trim();
-            const reversed = document.getElementById('reversedInput').checked;
-            const resultDiv = document.getElementById('result');
-            const gifPreview = document.getElementById('gifPreview');
-            const generateBtn = document.getElementById('generateBtn');
+            const formData = new FormData(e.target);
+            const gameUrl = formData.get('gameUrl');
+            const speed = formData.get('speed');
+            const theme = formData.get('theme');
             
-            // Extract game ID from URL if needed
-            let gameId = gameInput;
-            if (gameInput.includes('lichess.org/')) {
-                const match = gameInput.match(/lichess\.org\/([a-zA-Z0-9]+)/);
-                if (match) {
-                    gameId = match[1];
-                } else {
-                    resultDiv.innerHTML = '<div class="error">Invalid Lichess URL format</div>';
-                    return;
-                }
-            }
-            
-            if (!gameId || gameId.length < 8) {
-                resultDiv.innerHTML = '<div class="error">Please enter a valid Lichess game ID (at least 8 characters)</div>';
-                return;
-            }
-            
-            // Show loading state
-            generateBtn.disabled = true;
-            generateBtn.textContent = 'Generating GIF...';
-            resultDiv.innerHTML = '<div class="loading">⏳ Generating your GIF... This may take 5-15 seconds.</div>';
-            gifPreview.innerHTML = '';
+            // Show loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
             
             try {
-                // Build API URL
-                const apiUrl = `/api/lichess/${gameId}${reversed ? '?reversed=true' : ''}`;
-                
-                // Make request
-                const response = await fetch(apiUrl);
+
+                const response = await fetch('/api/lichess/' + gameUrl.split('/').pop() + (speed !== '1' ? `?speed=${speed}` : '') + (theme !== 'brown' ? `${speed !== '1' ? '&' : '?'}theme=${theme}` : ''), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: gameUrl,
+                        speed: parseFloat(speed),
+                        theme: theme
+                    })
+                });
                 
                 if (response.ok) {
-                    // Create blob URL for the GIF
                     const blob = await response.blob();
                     const gifUrl = URL.createObjectURL(blob);
                     
-                    // Show success message and download link
-                    resultDiv.innerHTML = `
-                        <div class="success">
-                            ✅ GIF generated successfully!<br>
-                            <a href="${gifUrl}" download="${gameId}.gif" style="color: #155724; text-decoration: underline;">
-                                📥 Download ${gameId}.gif
-                            </a>
-                        </div>
-                    `;
+                    // Show result
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('result').classList.remove('hidden');
                     
-                    // Show preview
-                    gifPreview.innerHTML = `
-                        <h3>Preview:</h3>
-                        <img src="${gifUrl}" alt="Chess game GIF" />
-                    `;
+                    // Display GIF
+                    const gifContainer = document.getElementById('gif-container');
+                    gifContainer.innerHTML = `<img src="${gifUrl}" alt="Generated Chess GIF" class="max-w-full rounded-lg shadow-lg">`;
                     
-                    // Auto-download
-                    const link = document.createElement('a');
-                    link.href = gifUrl;
-                    link.download = `${gameId}.gif`;
-                    link.click();
-                    
+                    // Set download link
+                    const downloadLink = document.getElementById('download-link');
+                    downloadLink.href = gifUrl;
+                    downloadLink.download = 'chess-game.gif';
                 } else {
-                    const errorText = await response.text();
-                    resultDiv.innerHTML = `<div class="error">❌ Error: ${errorText}</div>`;
+                    throw new Error('Failed to generate GIF');
                 }
             } catch (error) {
-                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
-            } finally {
-                // Reset button
-                generateBtn.disabled = false;
-                generateBtn.textContent = 'Generate GIF';
+                // Hide loading and show error
+                document.getElementById('loading').classList.add('hidden');
+                alert('Error generating GIF: ' + error.message);
             }
         });
     </script>
